@@ -165,13 +165,37 @@ func StudentPunchIn(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error while parsing")
 	}
 	CreateSTudentAttendance.StudentSId = uint(ID)
-	CreateSTudentAttendance.Class   = int(CLASS)
+	CreateSTudentAttendance.Class = int(CLASS)
 	CreateSTudentAttendance.Year = time.Now().Year()
 	CreateSTudentAttendance.Month = time.Now().Month()
 	CreateSTudentAttendance.Day = time.Now().YearDay()
-	CreateSTudentAttendance.PunchIn  = time.Now()
+	CreateSTudentAttendance.PunchIn = time.Now()
 	s := CreateSTudentAttendance.StudentPunchIn()
-	res, _ := json.Marshal(s) //converting it to json
+	res, _ := json.Marshal(s)
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+
+}
+func teacherPunchIn(w http.ResponseWriter, r *http.Request) {
+	CreateTeacherAttendance := &models.TeacherAttendance{}
+	vars := mux.Vars(r)
+	teacherId := vars["Id"]
+
+	ID, err := strconv.ParseInt(teacherId, 10, 32)
+	if err != nil {
+		fmt.Println("error while parsing")
+	}
+
+	if err != nil {
+		fmt.Println("error while parsing")
+	}
+	CreateTeacherAttendance.TeacherTId = uint(ID)
+	CreateTeacherAttendance.Year = time.Now().Year()
+	CreateTeacherAttendance.Month = time.Now().Month()
+	CreateTeacherAttendance.Day = time.Now().YearDay()
+	CreateTeacherAttendance.PunchIn = time.Now()
+	s := CreateSTudentAttendance.StudentPunchIn()
+	res, _ := json.Marshal(s)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 

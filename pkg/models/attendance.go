@@ -112,3 +112,8 @@ func (a TeacherAttendance) TeacherPunchIn() TeacherAttendance {
 	db.Create(&a)
 	return a
 }
+func (a StudentAttendance) StudentPunchOut() StudentAttendance {
+	db.NewRecord(a)
+	db.Create(&a)
+	return a
+}
