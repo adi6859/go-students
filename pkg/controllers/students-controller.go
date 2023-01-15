@@ -176,7 +176,7 @@ func StudentPunchIn(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 
 }
-func teacherPunchIn(w http.ResponseWriter, r *http.Request) {
+func TeacherPunchIn(w http.ResponseWriter, r *http.Request) {
 	CreateTeacherAttendance := &models.TeacherAttendance{}
 	vars := mux.Vars(r)
 	teacherId := vars["Id"]
@@ -194,12 +194,71 @@ func teacherPunchIn(w http.ResponseWriter, r *http.Request) {
 	CreateTeacherAttendance.Month = time.Now().Month()
 	CreateTeacherAttendance.Day = time.Now().YearDay()
 	CreateTeacherAttendance.PunchIn = time.Now()
-	s := CreateSTudentAttendance.StudentPunchIn()
+	s := CreateTeacherAttendance.TeacherPunchIn()
 	res, _ := json.Marshal(s)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 
 }
+
+// func StudentPunchout(w http.ResponseWriter, r *http.Request) {
+// 	SPunchout := &models.StudentAttendance{}
+// 	vars := mux.Vars(r)
+// 	studentId := vars["Id"]
+// 	studentClass := vars["class"]
+
+// 	ID, err := strconv.ParseInt(studentId, 10, 32)
+// 	if err != nil {
+// 		fmt.Println("error while parsing")
+// 	}
+// 	CLASS, err := strconv.ParseInt(studentClass, 10, 32)
+// 	if err != nil {
+// 		fmt.Println("error while parsing")
+// 	}
+
+// }
+
+// func PunchoutStudent(w http.ResponseWriter, r *http.Request) {
+// 	t := time.Now()
+// 	year := t.Year()
+// 	day := t.Day()
+// 	month := t.Month()
+
+// 	var student Student
+// 	var student1 Student
+// 	w.Header().Set("Content-Type", "application/json")
+// 	_ = json.NewDecoder(r.Body).Decode(&student1)
+// 	db.Where("s_id = ?", student1.SID).First(&student)
+// 	if student.Name == "" {
+// 		json.NewEncoder(w).Encode("Student Not found")
+// 	} else {
+// 		var attendance AttendanceStudent
+// 		var updatedattendance AttendanceStudent
+// 		db.Where("s_id = ? AND year = ? AND month = ? AND day = ?", student.SID, year, month, day).Last(&attendance)
+// 		attendance.SID = student.SID
+// 		attendance.Year = year
+// 		attendance.Month = month
+// 		attendance.Day = day
+// 		attendance.Class = student.Class
+// 		updatedattendance.SID = student.SID
+// 		updatedattendance.Year = year
+// 		updatedattendance.Month = month
+// 		updatedattendance.Day = day
+// 		updatedattendance.Class = student.Class
+
+// 		if attendance.PunchIn == true && attendance.PunchOut == false {
+// 			db.Where("s_id = ? AND year = ? AND month = ? AND day = ?", student.SID, year, month, day).Delete(AttendanceStudent{})
+// 			updatedattendance.PunchIn = true
+// 			updatedattendance.PunchOut = true
+// 			db.Create(&updatedattendance)
+// 			json.NewEncoder(w).Encode("Successfully Punched Out")
+
+// 		} else {
+// 			json.NewEncoder(w).Encode("You need to Punch in First")
+// 		}
+
+// 	}
+// }
 
 // func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 // 	var updateStudent = &models.Student{}
