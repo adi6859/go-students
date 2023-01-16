@@ -123,10 +123,10 @@ func (a StudentAttendance) DeleteStudentDailytAtt(Id int64, day int, month time.
 }
 func (a TeacherAttendance) TeacherPunchOut(Id int64, day int, month time.Month, year int) TeacherAttendance {
 	var teacherR TeacherAttendance
-	db.Where("student_s_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Find(&teacherR)
+	db.Where("teacher_t_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Find(&teacherR)
 	return teacherR
 }
 func (a TeacherAttendance) DeleteTeacherDailytAtt(Id int64, day int, month time.Month, year int) {
 	var deleteTchratt TeacherAttendance
-	db.Where("student_s_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Delete(&deleteTchratt)
+	db.Where("teacher_t_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Delete(&deleteTchratt)
 }
