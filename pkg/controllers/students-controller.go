@@ -164,16 +164,20 @@ func StudentPunchIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("error while parsing")
 	}
-	CreateSTudentAttendance.StudentSId = uint(ID)
-	CreateSTudentAttendance.Class = int(CLASS)
-	CreateSTudentAttendance.Year = time.Now().Year()
-	CreateSTudentAttendance.Month = time.Now().Month()
-	CreateSTudentAttendance.Day = time.Now().YearDay()
-	CreateSTudentAttendance.PunchIn = time.Now()
-	s := CreateSTudentAttendance.StudentPunchIn()
-	res, _ := json.Marshal(s)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	studentTdayAttd := CreateSTudentAttendance.StudentPunchOut(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
+	if studentTdayAttd.PunchIn.IsZero() {
+		CreateSTudentAttendance.StudentSId = uint(ID)
+
+		CreateSTudentAttendance.Class = int(CLASS)
+		CreateSTudentAttendance.Year = time.Now().Year()
+		CreateSTudentAttendance.Month = time.Now().Month()
+		CreateSTudentAttendance.Day = time.Now().YearDay()
+		CreateSTudentAttendance.PunchIn = time.Now()
+		s := CreateSTudentAttendance.StudentPunchIn()
+		res, _ := json.Marshal(s)
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
+	}
 
 }
 func TeacherPunchIn(w http.ResponseWriter, r *http.Request) {
@@ -189,34 +193,89 @@ func TeacherPunchIn(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("error while parsing")
 	}
-	CreateTeacherAttendance.TeacherTId = uint(ID)
-	CreateTeacherAttendance.Year = time.Now().Year()
-	CreateTeacherAttendance.Month = time.Now().Month()
-	CreateTeacherAttendance.Day = time.Now().YearDay()
-	CreateTeacherAttendance.PunchIn = time.Now()
-	s := CreateTeacherAttendance.TeacherPunchIn()
-	res, _ := json.Marshal(s)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	TeacherTdayAttd := CreateTeacherAttendance.TeacherPunchOut(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
+	if TeacherTdayAttd.PunchIn.IsZero() {
+		CreateTeacherAttendance.TeacherTId = uint(ID)
+		CreateTeacherAttendance.Year = time.Now().Year()
+		CreateTeacherAttendance.Month = time.Now().Month()
+		CreateTeacherAttendance.Day = time.Now().YearDay()
+		CreateTeacherAttendance.PunchIn = time.Now()
+		s := CreateTeacherAttendance.TeacherPunchIn()
+		res, _ := json.Marshal(s)
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
+	}
 
 }
 
-// func StudentPunchout(w http.ResponseWriter, r *http.Request) {
-// 	SPunchout := &models.StudentAttendance{}
-// 	vars := mux.Vars(r)
-// 	studentId := vars["Id"]
-// 	studentClass := vars["class"]
+func StudentPunchout(w http.ResponseWriter, r *http.Request) {
+	SPunchout := &models.StudentAttendance{}
 
-// 	ID, err := strconv.ParseInt(studentId, 10, 32)
-// 	if err != nil {
-// 		fmt.Println("error while parsing")
-// 	}
-// 	CLASS, err := strconv.ParseInt(studentClass, 10, 32)
-// 	if err != nil {
-// 		fmt.Println("error while parsing")
-// 	}
+	vars := mux.Vars(r)
+	studentId := vars["Id"]
+	ID, err := strconv.ParseInt(studentId, 10, 32)
+	if err != nil {
+		fmt.Println("error while parsing")
+	}
+	getDetail := SPunchout.StudentPunchOut(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
+	copyStudent := &models.StudentAttendance{}
 
-// }
+	if !getDetail.PunchIn.IsZero() && getDetail.PunchOut.IsZero() {
+
+		copyStudent.StudentSId = uint(ID)
+		copyStudent.Class = getDetail.Class
+		copyStudent.Year = getDetail.Year
+		copyStudent.Month = getDetail.Month
+		copyStudent.Day = getDetail.Day
+		copyStudent.PunchIn = getDetail.PunchIn
+		getDetail.DeleteStudentDailytAtt(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
+		SPunchout.StudentSId = copyStudent.StudentSId
+		SPunchout.Class = getDetail.Class
+		SPunchout.Year = copyStudent.Year
+		SPunchout.Month = copyStudent.Month
+		SPunchout.Day = copyStudent.Day
+		SPunchout.PunchIn = copyStudent.PunchIn
+		SPunchout.PunchOut = time.Now()
+		s := SPunchout.StudentPunchIn()
+		res, _ := json.Marshal(s) //converting it to json
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
+	}
+
+}
+func TeacherPunchout(w http.ResponseWriter, r *http.Request) {
+	TPunchout := &models.TeacherAttendance{}
+
+	vars := mux.Vars(r)
+	studentId := vars["Id"]
+	ID, err := strconv.ParseInt(studentId, 10, 32)
+	if err != nil {
+		fmt.Println("error while parsing")
+	}
+	getDetail := TPunchout.TeacherPunchOut(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
+	copyTeacher := &models.TeacherAttendance{}
+
+	if !getDetail.PunchIn.IsZero() && getDetail.PunchOut.IsZero() {
+
+		copyTeacher.TeacherTId = uint(ID)
+		copyTeacher.Year = getDetail.Year
+		copyTeacher.Month = getDetail.Month
+		copyTeacher.Day = getDetail.Day
+		copyTeacher.PunchIn = getDetail.PunchIn
+		getDetail.DeleteTeacherDailytAtt(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
+		TPunchout.TeacherTId = copyTeacher.TeacherTId
+		TPunchout.Year = copyTeacher.Year
+		TPunchout.Month = copyTeacher.Month
+		TPunchout.Day = copyTeacher.Day
+		TPunchout.PunchIn = copyTeacher.PunchIn
+		TPunchout.PunchOut = time.Now()
+		s := TPunchout.TeacherPunchIn()
+		res, _ := json.Marshal(s) //converting it to json
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
+	}
+
+}
 
 // func PunchoutStudent(w http.ResponseWriter, r *http.Request) {
 // 	t := time.Now()

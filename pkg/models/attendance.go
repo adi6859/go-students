@@ -12,7 +12,7 @@ var db *gorm.DB
 type Student struct {
 	Name        string              `json:"studentname"`
 	SId         uint                `gorm:"primary_key;auto_increment" json:"id"`
-	Class       string              `json:"class"`
+	Class       int                 `json:"class"`
 	SAttendance []StudentAttendance //this is used to connect two table
 }
 type Teacher struct {
@@ -112,8 +112,21 @@ func (a TeacherAttendance) TeacherPunchIn() TeacherAttendance {
 	db.Create(&a)
 	return a
 }
-func (a StudentAttendance) StudentPunchOut() StudentAttendance {
-	db.NewRecord(a)
-	db.Create(&a)
-	return a
+func (a StudentAttendance) StudentPunchOut(Id int64, day int, month time.Month, year int) StudentAttendance {
+	var studentR StudentAttendance
+	db.Where("student_s_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Find(&studentR)
+	return studentR
+}
+func (a StudentAttendance) DeleteStudentDailytAtt(Id int64, day int, month time.Month, year int) {
+	var deleteStntatt StudentAttendance
+	db.Where("student_s_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Delete(&deleteStntatt)
+}
+func (a TeacherAttendance) TeacherPunchOut(Id int64, day int, month time.Month, year int) TeacherAttendance {
+	var teacherR TeacherAttendance
+	db.Where("student_s_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Find(&teacherR)
+	return teacherR
+}
+func (a TeacherAttendance) DeleteTeacherDailytAtt(Id int64, day int, month time.Month, year int) {
+	var deleteTchratt TeacherAttendance
+	db.Where("student_s_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Delete(&deleteTchratt)
 }
