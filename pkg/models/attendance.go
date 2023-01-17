@@ -41,12 +41,12 @@ type TeacherAttendance struct {
 func init() {
 	config.Connect()
 	db = config.GetDB()
-	db.AutoMigrate(&Student{})//to store structure into Table format
+	db.AutoMigrate(&Student{}) //to store structure into Table format
 	db.AutoMigrate(&Teacher{})
 	db.AutoMigrate(&StudentAttendance{})
 	db.AutoMigrate(&TeacherAttendance{})
-	db.Model(&StudentAttendance{}).AddForeignKey("student_id", "students(id)", "cascade", "cascade")
-	db.Model(&TeacherAttendance{}).AddForeignKey("teacher_id", "teachers(id)", "cascade", "cascade")
+	db.Model(&StudentAttendance{}).AddForeignKey("student_s_id", "students(s_id)", "cascade", "cascade")
+	db.Model(&TeacherAttendance{}).AddForeignKey("teacher_t_id", "teachers(t_id)", "cascade", "cascade")
 }
 func (s Student) CreateStudents() Student { //*Student here pointer is not required because it points the previous entry always
 	db.NewRecord(s)
