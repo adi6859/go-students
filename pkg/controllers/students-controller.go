@@ -210,6 +210,7 @@ func TeacherPunchIn(w http.ResponseWriter, r *http.Request) {
 
 func StudentPunchout(w http.ResponseWriter, r *http.Request) {
 	SPunchout := &models.StudentAttendance{}
+	checkId := &models.Student{}
 
 	vars := mux.Vars(r)
 	studentId := vars["Id"]
@@ -217,29 +218,39 @@ func StudentPunchout(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("error while parsing")
 	}
-	getDetail := SPunchout.StudentPunchOut(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
-	copyStudent := &models.StudentAttendance{}
 
-	if !getDetail.PunchIn.IsZero() && getDetail.PunchOut.IsZero() {
+	copyStudent := SPunchout
+	studentexist := checkId.GetStudentId(ID)
+	if studentexist.SId == 0 {
+		fmt.Fprintln(w, "Student of this id doesnot exists")
+	} else {
+		getDetail := SPunchout.StudentPunchOut(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
+		if getDetail.PunchIn.IsZero() {
+			fmt.Fprintln(w, "You have not punchedIn for today")
+		} else if !getDetail.PunchIn.IsZero() && !getDetail.PunchOut.IsZero() {
+			fmt.Fprintln(w, "You have already PunchedOut for Today")
 
-		copyStudent.StudentSId = uint(ID)
-		copyStudent.Class = getDetail.Class
-		copyStudent.Year = getDetail.Year
-		copyStudent.Month = getDetail.Month
-		copyStudent.Day = getDetail.Day
-		copyStudent.PunchIn = getDetail.PunchIn
-		getDetail.DeleteStudentDailytAtt(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
-		SPunchout.StudentSId = copyStudent.StudentSId
-		SPunchout.Class = getDetail.Class
-		SPunchout.Year = copyStudent.Year
-		SPunchout.Month = copyStudent.Month
-		SPunchout.Day = copyStudent.Day
-		SPunchout.PunchIn = copyStudent.PunchIn
-		SPunchout.PunchOut = time.Now()
-		s := SPunchout.StudentPunchIn()
-		res, _ := json.Marshal(s) //converting it to json
-		w.WriteHeader(http.StatusOK)
-		w.Write(res)
+		} else if !getDetail.PunchIn.IsZero() && getDetail.PunchOut.IsZero() {
+
+			copyStudent.StudentSId = uint(ID)
+			copyStudent.Class = getDetail.Class
+			copyStudent.Year = getDetail.Year
+			copyStudent.Month = getDetail.Month
+			copyStudent.Day = getDetail.Day
+			copyStudent.PunchIn = getDetail.PunchIn
+			getDetail.DeleteStudentDailytAtt(ID, time.Now().Day(), time.Now().Month(), time.Now().Year())
+			SPunchout.StudentSId = copyStudent.StudentSId
+			SPunchout.Class = getDetail.Class
+			SPunchout.Year = copyStudent.Year
+			SPunchout.Month = copyStudent.Month
+			SPunchout.Day = copyStudent.Day
+			SPunchout.PunchIn = copyStudent.PunchIn
+			SPunchout.PunchOut = time.Now()
+			s := SPunchout.StudentPunchIn()
+			res, _ := json.Marshal(s) //converting it to json
+			w.WriteHeader(http.StatusOK)
+			w.Write(res)
+		}
 	}
 
 }

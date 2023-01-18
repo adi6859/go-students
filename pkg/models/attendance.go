@@ -131,3 +131,8 @@ func (a TeacherAttendance) DeleteTeacherDailytAtt(Id int64, day int, month time.
 	var deleteTchratt TeacherAttendance
 	db.Where("teacher_t_id=? AND day=? AND month=? AND year=?", uint(Id), day, month, year).Delete(&deleteTchratt)
 }
+func (s *Student) GetStudentId(Id int64) *Student {
+	var checkId Student
+	db.Where("s_id=?", uint(Id)).Find(&checkId)
+	return &checkId
+}
